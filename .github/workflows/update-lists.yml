@@ -2,22 +2,22 @@ name: Update Phishing Lists
 
 on:
   schedule:
-    - cron: '0 4 * * *'
+    - cron: '0 4 * * *'  # 毎日4時UTC
   workflow_dispatch:
 
 jobs:
   update:
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # 明示的に権限を指定
+      contents: write  # push権限を明示的に指定
     steps:
       - name: Checkout
-        uses: actions/checkout@v4  # v3は古いため更新
+        uses: actions/checkout@v4  # v3から更新
         with:
-          fetch-depth: 0  # 完全な履歴を取得
-          
+          fetch-depth: 0  # 完全履歴を取得（rebase用）
+        
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v4  # v3から更新
         with:
           node-version: '18'
           
@@ -31,15 +31,17 @@ jobs:
           git add lists/
           if ! git diff --staged --quiet; then
             git commit -m "Update phishing lists - $(date -u)"
+            # リモートの変更を先に取り込む
+            git pull --rebase --autostash origin main || true
             # リトライ機能付きpush
-            for i in {1..5}; do
-              if git push; then
+            for i in 1 2 3 4 5; do
+              if git push origin HEAD:main; then
                 echo "Push successful"
                 break
               fi
               echo "Push failed, retrying ($i/5)..."
               sleep $((2**i))
-              git pull --rebase
+              git pull --rebase --autostash origin main || true
             done
           else
             echo "No changes to commit"
