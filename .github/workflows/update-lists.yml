@@ -3,7 +3,7 @@ name: Update Phishing Lists
 
 on:
   schedule:
-    - cron: '0 4 * * *'  # 毎日6時UTC
+    - cron: '0 4 * * *'  # 毎日4時UTC
   workflow_dispatch:
 
 jobs:
