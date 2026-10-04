@@ -19,7 +19,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4  # v3から更新
         with:
-          node-version: '18'
+          node-version: '24'
           
       - name: Process lists
         run: node scripts/process-lists.js
